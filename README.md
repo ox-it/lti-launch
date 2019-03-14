@@ -2,6 +2,10 @@
 
 LTI Launch is a project designed to assist in the development of Java based LTI applications that work with the Canvas LMS. It provides functionality to authenticate the OAuth signature of an LTI launch request. After the launch request is verified, the user is forwarded to an initial view specified by the implementing application.
 
+### Build
+
+[![Build Status](https://travis-ci.org/buckett/lti-launch.svg?branch=master)](https://travis-ci.org/buckett/lti-launch)
+
 ### Technologies Used
 - Java 8
 - Maven (Compatible with 3.5.2, requires 3.1+)
