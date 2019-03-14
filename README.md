@@ -4,7 +4,7 @@ LTI Launch is a project designed to assist in the development of Java based LTI 
 
 ### Build
 
-[![Build Status](https://travis-ci.org/buckett/lti-launch.svg?branch=master)](https://travis-ci.org/buckett/lti-launch)
+[![Build Status](https://travis-ci.org/ox-it/lti-launch.svg?branch=master)](https://travis-ci.org/ox-it/lti-launch)
 
 ### Technologies Used
 - Java 8
