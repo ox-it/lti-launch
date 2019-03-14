@@ -1,11 +1,8 @@
 package edu.ksu.lti.launch.security;
 
 import edu.ksu.lti.launch.exception.InvalidInstanceException;
-import edu.ksu.lti.launch.model.LtiSession;
-import edu.ksu.lti.launch.service.ConfigService;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Checks which Canvas instance this application is running in.
@@ -17,49 +14,61 @@ import org.springframework.stereotype.Component;
  * This checker is invoked during launch and will throw an exception if the
  * Canvas URL coming in from the LTI launch request doesn't match the configured
  * Canvas URL or secondary URL if you have a vanity domain.
+ *
  */
-@Component
 public class CanvasInstanceChecker {
-    private final ConfigService configService;
 
-    @Autowired
-    public CanvasInstanceChecker(ConfigService configService) {
-        this.configService = configService;
+    private final String canvasUrl;
+    private final String secondCanvasUrl;
+
+    public CanvasInstanceChecker(String canvasUrl, String secondCanvasUrl) {
+        this.canvasUrl = canvasUrl;
+        this.secondCanvasUrl = secondCanvasUrl;
     }
 
-    public void assertValidInstance(LtiSession ltiSession) {
-        String launchUrl = removeTrailingSlash(ltiSession.getCanvasDomain());
-        String canvasUrl = configService.getConfigValue("canvas_url");
-        String secondCanvasUrl = configService.getConfigValue("canvas_url_2");
+    public void validateInstance(HttpServletRequest request) {
+        String launchUrl = removeLocalPart(request.getParameter("custom_canvas_api_domain"));
+        if (launchUrl == null || launchUrl.isEmpty()) {
+            launchUrl = domainFromUrl(request.getParameter("launch_presentation_return_url"));
+        }
+        validateInstance(launchUrl);
+    }
+
+    public void validateInstance(String canvasHostname) {
+        if (canvasHostname == null || canvasHostname.isEmpty()) {
+            return;
+        }
         String canvasDomain = domainFromUrl(canvasUrl);
         String secondCanvasDomain = domainFromUrl(secondCanvasUrl);
-        if (!StringUtils.isBlank(secondCanvasDomain)) {
-            if (!launchUrl.equalsIgnoreCase(canvasDomain) && !launchUrl.equalsIgnoreCase(secondCanvasDomain)) {
-                throw new InvalidInstanceException(launchUrl, ltiSession.getCanvasCourseId());
-            }
-        } else {
-            if (!launchUrl.equalsIgnoreCase(canvasDomain)) {
-                throw new InvalidInstanceException(launchUrl, ltiSession.getCanvasCourseId());
-            }
+        validateDomain(canvasHostname, canvasDomain);
+        validateDomain(canvasHostname, secondCanvasDomain);
+    }
+
+    private static void validateDomain(String requestDomain, String configDomain) {
+        if (configDomain != null && !configDomain.isEmpty() && requestDomain != null && !requestDomain.equalsIgnoreCase(configDomain)) {
+            throw new InvalidInstanceException(requestDomain);
         }
     }
 
-    private String domainFromUrl(String url) {
-        if (StringUtils.isBlank(url)) {
+    private static String domainFromUrl(String url) {
+        if (url == null || url.isEmpty()) {
             return "";
         }
         url = removeProtocol(url);
-        return removeTrailingSlash(url);
+        return removeLocalPart(url);
     }
 
-    private String removeProtocol(String url) {
+    private static String removeProtocol(String url) {
         int firstSlashIndex = url.indexOf("/");
-        return url.substring(firstSlashIndex + 2, url.length());
+        return (firstSlashIndex > 0)?url.substring(firstSlashIndex + 2):url;
     }
 
-    private String removeTrailingSlash(String url) {
-        if (url.charAt(url.length() - 1) == '/') {
-            return url.substring(0, url.length() - 1);
+    private static String removeLocalPart(String url) {
+        if (url != null) {
+            int firstSlashIndex = url.indexOf('/');
+            if (firstSlashIndex > 0) {
+                return url.substring(0, firstSlashIndex);
+            }
         }
         return url;
     }

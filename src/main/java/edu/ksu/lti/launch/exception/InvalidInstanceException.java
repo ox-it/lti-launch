@@ -11,10 +11,12 @@ public class InvalidInstanceException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     public final String launchUrl;
-    public final String courseId;
 
-    public InvalidInstanceException(String launchUrl, String courseId) {
+    public InvalidInstanceException(String launchUrl) {
         this.launchUrl = launchUrl;
-        this.courseId = courseId;
+    }
+
+    public String getLaunchUrl() {
+        return this.launchUrl;
     }
 }
