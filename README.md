@@ -21,6 +21,17 @@ The best way to understand how to use this is to look at the sample application 
 The lookup of tool consumers when handling an LTI launch is done by `ToolConsumerService` and there is simple
 implementation in `SingleToolConsumerService`.
 
+### Releasing
+
+This project is deployed to the central repository, once ready to release you can have the release plugin tag everything:
+
+    mvn -Prelease release:clean release:prepare
+    
+then if that completes successfully a release bundle can be pushed to the staging area of the Sonatype OSS repository with:
+
+    mvn -Prelease release:perform
+    
+We don't automatically close the staged artifacts so after checking that the files are ok you can login to the [repository](https://oss.sonatype.org/) and release it.
 
 ### License
 This software is licensed under the LGPL v3 license. Please see the [License.txt file](License.txt) in this repository for license details.
