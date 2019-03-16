@@ -18,7 +18,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
  * A configurer for enabling LTI logins for a Spring.
  * Loads the {@link LtiLoginService} from the shared object space.
  *
- * @param <B>
+ * @param <B> The type of security builder.
  */
 public class LtiConfigurer<B extends HttpSecurityBuilder<B>> extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, B> {
 

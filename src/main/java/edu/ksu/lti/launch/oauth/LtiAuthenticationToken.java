@@ -18,7 +18,7 @@ public class LtiAuthenticationToken extends AbstractAuthenticationToken {
      *
      * @param credentials the supplied credentials.
      * @param principal the LTI principal used to authenticate.
-     * @param authorities the collection of <tt>GrantedAuthority</tt>s for the
+     * @param authorities the collection of <code>GrantedAuthority</code>s for the
      *                    principal represented by this authentication object.
      */
     public LtiAuthenticationToken(ConsumerCredentials credentials, LtiPrincipal principal, Collection<? extends GrantedAuthority> authorities) {
