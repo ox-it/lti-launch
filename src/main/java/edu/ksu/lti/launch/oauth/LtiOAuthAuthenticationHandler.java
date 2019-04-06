@@ -51,11 +51,7 @@ public class LtiOAuthAuthenticationHandler implements OAuthAuthenticationHandler
         if (consumer == null) {
             throw new InvalidOAuthParametersException("Failed to lookup tool consumer for: "+ key);
         }
-        // TODO This shouldn't be in the core code and should be listening for authentication events.
-        if (checkInstance) {
-            CanvasInstanceChecker checker = new CanvasInstanceChecker(consumer.getUrl(), null);
-            checker.validateInstance(request);
-        }
+
 
         LtiPrincipal principal = new LtiPrincipal(consumer, name);
 
@@ -64,6 +60,14 @@ public class LtiOAuthAuthenticationHandler implements OAuthAuthenticationHandler
         authorities.addAll(extractRoles(request.getParameter("roles")));
 
         Authentication authentication = new LtiAuthenticationToken(consumerAuthentication.getConsumerCredentials(), principal, authorities);
+
+        // TODO This shouldn't be in the core code and should be listening for authentication events.
+        // We do this after checking authentication as we will present the return URL and don't
+        // want people to be able to fake this.
+        if (checkInstance) {
+            CanvasInstanceChecker checker = new CanvasInstanceChecker(consumer.getUrl(), null);
+            checker.validateInstance(request);
+        }
         return authentication;
     }
 
