@@ -7,10 +7,13 @@ import edu.ksu.lti.launch.model.LtiSession;
 import edu.ksu.lti.launch.oauth.LtiPrincipal;
 import edu.ksu.lti.launch.service.LtiLoginService;
 import edu.ksu.lti.launch.service.SimpleLtiLoginService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.PropertyValues;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.validation.DataBinder;
 
@@ -23,6 +26,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Locale;
+
+import static org.springframework.util.StringUtils.parseLocale;
 
 /**
  * This filter is used to redirect the user to the home page after successful authentication of the LTI request.
@@ -30,6 +36,9 @@ import java.io.IOException;
  * is authenticated.
  */
 public class LtiLoginFilter implements Filter {
+
+
+    private static final Log logger = LogFactory.getLog(LtiLoginFilter.class);
 
     private RequestMatcher requestMatcher;
     private LtiLoginService ltiLoginService = new SimpleLtiLoginService();
@@ -66,6 +75,8 @@ public class LtiLoginFilter implements Filter {
                 ltiSession.setCanvasCourseId(launchData.getCustom().get("canvas_course_id"));
                 ltiSession.setCanvasDomain(launchData.getCustom().get("canvas_api_domain"));
                 ltiSession.setEid(launchData.getCustom().get("canvas_user_login_id"));
+                Locale locale = toLocale(launchData.getLaunchPresentationLocale());
+                ltiSession.setLocale(locale);
                 ltiSession.setLtiLaunchData(launchData);
                 ltiLoginService.setLtiSession(ltiSession);
                 String view = ltiLoginService.getInitialView((LtiPrincipal) principal);
@@ -84,6 +95,21 @@ public class LtiLoginFilter implements Filter {
         } else {
             chain.doFilter(servletRequest, servletResponse);
         }
+    }
+
+    /**
+     * Helper to parse the locale in the LTI launch.
+     * @param launchPresentationLocale The string for the locale.
+     * @return The locale or null if it couldn't be parsed or found.
+     */
+    Locale toLocale(String launchPresentationLocale) {
+        Locale locale = null;
+        try {
+            locale = parseLocale(launchPresentationLocale);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Failed to parse locale of: "+ launchPresentationLocale );
+        }
+        return locale;
     }
 
     protected boolean shouldFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) {

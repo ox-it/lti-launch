@@ -1,5 +1,7 @@
 package edu.ksu.lti.launch.model;
 
+import java.util.Locale;
+
 /**
  * Class to hold LTI session data. It is created and populated when the LTI application is first
  * launched and then stored in the session for future reference. Some commonly accessed information
@@ -14,6 +16,7 @@ public class LtiSession {
     private String eid;
     private String canvasCourseId;
     private String canvasDomain;
+    private Locale locale;
     private LtiLaunchData ltiLaunchData;
 
 
@@ -55,6 +58,14 @@ public class LtiSession {
 
     public String getCanvasDomain() {
         return canvasDomain;
+    }
+
+    public Locale getLocale() {
+        return locale;
+    }
+
+    public void setLocale(Locale locale) {
+        this.locale = locale;
     }
 
     public void setLtiLaunchData(LtiLaunchData ltiLaunchData) {
