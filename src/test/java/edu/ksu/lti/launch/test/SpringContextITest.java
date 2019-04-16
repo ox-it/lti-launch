@@ -1,6 +1,7 @@
 package edu.ksu.lti.launch.test;
 
 
+import edu.ksu.lti.launch.exception.InvalidInstanceException;
 import edu.ksu.lti.launch.spring.config.TestWebSecurityConfig;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +26,7 @@ import org.springframework.web.util.UriUtils;
 
 import java.net.URL;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -80,23 +82,139 @@ public class SpringContextITest {
         // There isn't a nice way to get the signed values back from the library.
         String encodedQueryString = support.getOAuthQueryString(details, null, url, "POST", Collections.emptyMap());
 
+        Map<String, List<String>> collect = toQueryParams(encodedQueryString);
+
+        this.mockMvc.perform(post("http://server/launch")
+            .params(new LinkedMultiValueMap<>(collect))
+            .accept(MediaType.TEXT_HTML))
+            .andExpect(status().is3xxRedirection());
+    }
+
+    @Test
+    public void testRepeatRequest() throws Exception {
+        OAuthConsumerSupport support = new CoreOAuthConsumerSupport();
+        BaseProtectedResourceDetails details = new BaseProtectedResourceDetails();
+        details.setAcceptsAuthorizationHeader(false);
+        details.setSharedSecret(new SharedConsumerSecretImpl("secret"));
+        details.setConsumerKey("test");
+        URL url = new URL("http://server/launch");
+        // There isn't a nice way to get the signed values back from the library.
+        String encodedQueryString = support.getOAuthQueryString(details, null, url, "POST", Collections.emptyMap());
+
+        Map<String, List<String>> collect = toQueryParams(encodedQueryString);
+
+        this.mockMvc.perform(post("http://server/launch")
+            .params(new LinkedMultiValueMap<>(collect))
+            .accept(MediaType.TEXT_HTML))
+            .andExpect(status().is3xxRedirection());
+
+        // This should be blocked because of the nonce blocking
+        this.mockMvc.perform(post("http://server/launch")
+            .params(new LinkedMultiValueMap<>(collect))
+            .accept(MediaType.TEXT_HTML))
+            .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void testRepeatRequestResigned() throws Exception {
+        OAuthConsumerSupport support = new CoreOAuthConsumerSupport();
+        BaseProtectedResourceDetails details = new BaseProtectedResourceDetails();
+        details.setAcceptsAuthorizationHeader(false);
+        details.setSharedSecret(new SharedConsumerSecretImpl("secret"));
+        details.setConsumerKey("test");
+        URL url = new URL("http://server/launch");
+        // There isn't a nice way to get the signed values back from the library.
+        {
+            String encodedQueryString = support.getOAuthQueryString(details, null, url, "POST", Collections.emptyMap());
+            Map<String, List<String>> collect = toQueryParams(encodedQueryString);
+
+            this.mockMvc.perform(post("http://server/launch")
+                .params(new LinkedMultiValueMap<>(collect))
+                .accept(MediaType.TEXT_HTML))
+                .andExpect(status().is3xxRedirection());
+        }
+        {
+            String encodedQueryString = support.getOAuthQueryString(details, null, url, "POST", Collections.emptyMap());
+            Map<String, List<String>> collect = toQueryParams(encodedQueryString);
+
+            this.mockMvc.perform(post("http://server/launch")
+                .params(new LinkedMultiValueMap<>(collect))
+                .accept(MediaType.TEXT_HTML))
+                .andExpect(status().is3xxRedirection());
+        }
+    }
+
+    @Test(expected = InvalidInstanceException.class)
+    public void testRepeatCrossInstance() throws Exception {
+        OAuthConsumerSupport support = new CoreOAuthConsumerSupport();
+        BaseProtectedResourceDetails details = new BaseProtectedResourceDetails();
+        details.setAcceptsAuthorizationHeader(false);
+        details.setSharedSecret(new SharedConsumerSecretImpl("secret"));
+        details.setConsumerKey("test");
+        URL url = new URL("http://server/launch");
+        // There isn't a nice way to get the signed values back from the library.
+        Map<String, String> additional = new HashMap<>();
+        additional.put("custom_canvas_api_domain", "http://server.beta/launch");
+        String encodedQueryString = support.getOAuthQueryString(details, null, url, "POST", additional);
+        Map<String, List<String>> collect = toQueryParams(encodedQueryString);
+
+        this.mockMvc.perform(post("http://server/launch")
+            .params(new LinkedMultiValueMap<>(collect))
+            .accept(MediaType.TEXT_HTML))
+            .andExpect(status().is4xxClientError());
+    }
+
+
+    @Test
+    public void testWrongSecret() throws Exception {
+        OAuthConsumerSupport support = new CoreOAuthConsumerSupport();
+        BaseProtectedResourceDetails details = new BaseProtectedResourceDetails();
+        details.setAcceptsAuthorizationHeader(false);
+        details.setSharedSecret(new SharedConsumerSecretImpl("wrong"));
+        details.setConsumerKey("test");
+        URL url = new URL("http://server/launch");
+        // There isn't a nice way to get the signed values back from the library.
+        String encodedQueryString = support.getOAuthQueryString(details, null, url, "POST", Collections.emptyMap());
+
+        Map<String, List<String>> collect = toQueryParams(encodedQueryString);
+
+        this.mockMvc.perform(post("http://server/launch")
+            .params(new LinkedMultiValueMap<>(collect))
+            .accept(MediaType.TEXT_HTML))
+            .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void testWrongConsumer() throws Exception {
+        OAuthConsumerSupport support = new CoreOAuthConsumerSupport();
+        BaseProtectedResourceDetails details = new BaseProtectedResourceDetails();
+        details.setAcceptsAuthorizationHeader(false);
+        details.setSharedSecret(new SharedConsumerSecretImpl("secret"));
+        details.setConsumerKey("wrong");
+        URL url = new URL("http://server/launch");
+        // There isn't a nice way to get the signed values back from the library.
+        String encodedQueryString = support.getOAuthQueryString(details, null, url, "POST", Collections.emptyMap());
+
+        Map<String, List<String>> collect = toQueryParams(encodedQueryString);
+
+        this.mockMvc.perform(post("http://server/launch")
+            .params(new LinkedMultiValueMap<>(collect))
+            .accept(MediaType.TEXT_HTML))
+            .andExpect(status().is4xxClientError());
+    }
+
+    private Map<String, List<String>> toQueryParams(String encodedQueryString) {
         MultiValueMap<String, String> queryParams = UriComponentsBuilder
             .fromUriString("?" + encodedQueryString)
             .build()
             .getQueryParams();
-        Map<String, List<String>> collect = queryParams.entrySet()
+        return queryParams.entrySet()
             .stream()
             .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue()
                 .stream()
                 .map(s -> UriUtils.decode(s, "UTF-8"))
                 .collect(Collectors.toList()))
             );
-
-        this.mockMvc.perform(post("http://server/launch")
-            .params(new LinkedMultiValueMap<>(collect))
-            .content(encodedQueryString)
-            .accept(MediaType.TEXT_HTML))
-            .andExpect(status().is3xxRedirection());
     }
 
 }
