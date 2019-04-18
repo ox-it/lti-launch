@@ -46,7 +46,7 @@ public class CanvasInstanceChecker {
 
     private static void validateDomain(String requestDomain, String configDomain) {
         if (configDomain != null && !configDomain.isEmpty() && requestDomain != null && !requestDomain.equalsIgnoreCase(configDomain)) {
-            throw new InvalidInstanceException(requestDomain);
+            throw new InvalidInstanceException(requestDomain, configDomain);
         }
     }
 

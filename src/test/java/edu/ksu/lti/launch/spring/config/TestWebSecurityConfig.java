@@ -20,7 +20,7 @@ public class TestWebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-            .apply(new LtiConfigurer<>(toolConsumerService(), "/launch", true))
+            .apply(new LtiConfigurer<>(toolConsumerService(), "/launch", true, null))
             .and().authorizeRequests().anyRequest().hasRole("LTI_USER");
         // Disable csrf for LTI launches
         http.csrf().requireCsrfProtectionMatcher(new LtiLaunchCsrfMatcher("/launch"));
