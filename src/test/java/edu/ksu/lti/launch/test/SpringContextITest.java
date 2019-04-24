@@ -144,7 +144,7 @@ public class SpringContextITest {
         }
     }
 
-    @Test(expected = InvalidInstanceException.class)
+    @Test
     public void testRepeatCrossInstance() throws Exception {
         OAuthConsumerSupport support = new CoreOAuthConsumerSupport();
         BaseProtectedResourceDetails details = new BaseProtectedResourceDetails();
