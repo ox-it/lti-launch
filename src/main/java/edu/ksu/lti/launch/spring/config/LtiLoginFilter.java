@@ -1,7 +1,6 @@
 package edu.ksu.lti.launch.spring.config;
 
 import edu.ksu.lti.launch.beans.LtiLaunchPropertyValues;
-import edu.ksu.lti.launch.beans.SnakeCasePropertyValues;
 import edu.ksu.lti.launch.model.LtiLaunchData;
 import edu.ksu.lti.launch.model.LtiSession;
 import edu.ksu.lti.launch.oauth.LtiPrincipal;
@@ -13,7 +12,6 @@ import org.springframework.beans.PropertyValues;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.validation.DataBinder;
 
@@ -78,7 +76,7 @@ public class LtiLoginFilter implements Filter {
                 Locale locale = toLocale(launchData.getLaunchPresentationLocale());
                 ltiSession.setLocale(locale);
                 ltiSession.setLtiLaunchData(launchData);
-                ltiLoginService.setLtiSession(ltiSession);
+                ltiLoginService.setLtiSession((LtiPrincipal) principal, ltiSession);
                 String view = ltiLoginService.getInitialView((LtiPrincipal) principal);
 
                 // Set the view afterwards as getting the initial view may need the LtiSession

@@ -32,7 +32,7 @@ public class SimpleLtiLoginService implements LtiLoginService {
     }
 
     @Override
-    public void setLtiSession(LtiSession ltiSession) {
+    public void setLtiSession(LtiPrincipal principal, LtiSession ltiSession) {
         ServletRequestAttributes sra = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest req = sra.getRequest();
         HttpSession session = req.getSession();

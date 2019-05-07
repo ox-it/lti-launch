@@ -52,8 +52,14 @@ public class LtiOAuthAuthenticationHandler implements OAuthAuthenticationHandler
             throw new InvalidOAuthParametersException("Failed to lookup tool consumer for: "+ key);
         }
 
+        String resourceId = request.getParameter("resource_id");
+        // According to the spec context_id is optional.
+        String context = request.getParameter("context_id");
+        if (context == null || context.isEmpty()) {
+            context = resourceId;
+        }
 
-        LtiPrincipal principal = new LtiPrincipal(consumer, name);
+        LtiPrincipal principal = new LtiPrincipal(consumer, name, context);
 
         HashSet<GrantedAuthority> authorities = new HashSet<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_LTI_USER"));

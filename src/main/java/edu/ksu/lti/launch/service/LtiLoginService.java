@@ -21,7 +21,7 @@ public interface LtiLoginService {
 
     LtiSession getLtiSession() throws NoLtiSessionException;
 
-    void setLtiSession(LtiSession ltiSession);
+    void setLtiSession(LtiPrincipal principal, LtiSession ltiSession);
 
     /**
      * Callback that happens after a successful login. This is useful if some of the data from the LTI launch is needed
