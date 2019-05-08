@@ -68,7 +68,7 @@ public class LtiLoginFilter implements Filter {
                 LtiLaunchData launchData = new LtiLaunchData();
                 DataBinder dataBinder = new DataBinder(launchData);
                 dataBinder.bind(propertyValues);
-                LtiSession ltiSession = new LtiSession();
+                LtiSession ltiSession = new LtiSession(launchData);
                 ltiSession.setApplicationName(((LtiPrincipal) principal).getTenant());
                 ltiSession.setCanvasCourseId(launchData.getCustom().get("canvas_course_id"));
                 ltiSession.setCanvasDomain(launchData.getCustom().get("canvas_api_domain"));
