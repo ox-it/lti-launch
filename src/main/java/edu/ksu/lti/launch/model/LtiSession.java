@@ -1,6 +1,7 @@
 package edu.ksu.lti.launch.model;
 
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * Class to hold LTI session data. It is created and populated when the LTI application is first
@@ -19,8 +20,16 @@ public class LtiSession {
     private Locale locale;
     private LtiLaunchData ltiLaunchData;
 
+    public LtiSession(LtiLaunchData launchData) {
+        Objects.requireNonNull(launchData, "launchData cannot be null");
+        this.ltiLaunchData = launchData;
+    }
 
-	public void setApplicationName(String applicationName) {
+    public LtiSession() {
+        this.ltiLaunchData = new LtiLaunchData();
+    }
+
+    public void setApplicationName(String applicationName) {
         this.applicationName = applicationName;
     }
 
