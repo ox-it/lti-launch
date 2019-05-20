@@ -33,6 +33,14 @@ then if that completes successfully a release bundle can be pushed to the stagin
     
 We don't automatically close the staged artifacts so after checking that the files are ok you can login to the [repository](https://oss.sonatype.org/) and release it.
 
+### Troubleshooting
+
+#### Invalid signature for signature method HMAC-SHA1
+
+If you are having problems with OAuth signatures not matching you should enable debug logging on `edu.ksu.lti.launch.spring.config.LtiAuthenticationFilter` and this will output the string that is being checked and the signature that it should match.
+
+A common problems is that the request is made as HTTPS to a proxy infront of the application and is then passed through as HTTP and this causes a signature mismatch because the the request URL that is checked doesn't matche the request URL that the signature was generated against.
+
 ### License
 This software is licensed under the LGPL v3 license. Please see the [License.txt file](License.txt) in this repository for license details.
 
