@@ -63,7 +63,7 @@ public class LtiOAuthAuthenticationHandler implements OAuthAuthenticationHandler
 
         HashSet<GrantedAuthority> authorities = new HashSet<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_LTI_USER"));
-        authorities.addAll(extractRoles(request.getParameter("roles")));
+        authorities.addAll(userAuthorityFactory.getLtiUserAuthorities(request.getParameter("roles")));
 
         Authentication authentication = new LtiAuthenticationToken(consumerAuthentication.getConsumerCredentials(), principal, authorities);
 
@@ -75,17 +75,5 @@ public class LtiOAuthAuthenticationHandler implements OAuthAuthenticationHandler
             checker.validateInstance(request);
         }
         return authentication;
-    }
-
-    public Collection<GrantedAuthority> extractRoles(String roles) {
-        if (roles == null || roles.isEmpty()) {
-            return Collections.emptySet();
-        }
-        StringTokenizer stringTokenizer = new StringTokenizer(roles, ",");
-        Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
-        while (stringTokenizer.hasMoreElements()) {
-            grantedAuthorities.add(userAuthorityFactory.getLtiUserAuthority(stringTokenizer.nextToken()));
-        }
-        return grantedAuthorities;
     }
 }
