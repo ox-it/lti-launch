@@ -1,13 +1,17 @@
 package edu.ksu.lti.launch.spring.config;
 
 import edu.ksu.lti.launch.beans.LtiLaunchPropertyValues;
+import edu.ksu.lti.launch.model.InstitutionRole;
 import edu.ksu.lti.launch.model.LtiLaunchData;
 import edu.ksu.lti.launch.model.LtiSession;
 import edu.ksu.lti.launch.oauth.LtiPrincipal;
+import edu.ksu.lti.launch.oauth.LtiUserAuthority;
+import edu.ksu.lti.launch.oauth.LtiUserAuthorityFactory;
 import edu.ksu.lti.launch.service.LtiLoginService;
 import edu.ksu.lti.launch.service.SimpleLtiLoginService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.PropertyValue;
 import org.springframework.beans.PropertyValues;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.context.SecurityContext;
@@ -24,7 +28,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Locale;
+import java.util.*;
 
 import static org.springframework.util.StringUtils.parseLocale;
 
@@ -68,6 +72,11 @@ public class LtiLoginFilter implements Filter {
                 LtiLaunchData launchData = new LtiLaunchData();
                 DataBinder dataBinder = new DataBinder(launchData);
                 dataBinder.bind(propertyValues);
+                // This should be done with a custom databinder really.
+                String rolesParam = request.getParameter("roles");
+                if (rolesParam != null) {
+                    launchData.setRolesList(getInstitutionRoles(rolesParam));
+                }
                 LtiSession ltiSession = new LtiSession(launchData);
                 ltiSession.setApplicationName(((LtiPrincipal) principal).getTenant());
                 ltiSession.setCanvasCourseId(launchData.getCustom().get("canvas_course_id"));
@@ -108,6 +117,27 @@ public class LtiLoginFilter implements Filter {
             logger.warn("Failed to parse locale of: "+ launchPresentationLocale );
         }
         return locale;
+    }
+
+
+    /**
+     * Parses out the official roles, custom roles are ignored.
+     * @param roles The roles
+     * @return A List of InstitutionalRole objects extracted from the string.
+     */
+    protected List<InstitutionRole> getInstitutionRoles(String roles) {
+        if (roles == null || roles.isEmpty()) {
+            return Collections.emptyList();
+        }
+        StringTokenizer stringTokenizer = new StringTokenizer(roles, ",");
+        List<InstitutionRole> institutionRoles = new ArrayList<>();
+        while (stringTokenizer.hasMoreElements()) {
+            InstitutionRole institutionRole = InstitutionRole.fromString(stringTokenizer.nextToken());
+            if (institutionRole != null) {
+                institutionRoles.add(institutionRole);
+            }
+        }
+        return institutionRoles;
     }
 
     protected boolean shouldFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
