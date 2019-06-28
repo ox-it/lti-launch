@@ -17,7 +17,7 @@ public class StandardLtiUserAuthority implements LtiUserAuthority {
 
     @Override
     public String getAuthority() {
-        return role.toString();
+        return ROLE_PREFIX + role.toString();
     }
 
     @Override
