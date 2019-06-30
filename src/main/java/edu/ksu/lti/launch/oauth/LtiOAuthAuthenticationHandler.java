@@ -65,6 +65,11 @@ public class LtiOAuthAuthenticationHandler implements OAuthAuthenticationHandler
         authorities.add(new SimpleGrantedAuthority("ROLE_LTI_USER"));
         authorities.addAll(userAuthorityFactory.getLtiUserAuthorities(request.getParameter("roles")));
 
+        String isRootAdmin = request.getParameter("custom_canvas_user_isrootaccountadmin");
+        if (Boolean.parseBoolean(isRootAdmin)) {
+            authorities.add(new RootAccountAdminAuthority());
+        }
+
         Authentication authentication = new LtiAuthenticationToken(consumerAuthentication.getConsumerCredentials(), principal, authorities);
 
         // TODO This shouldn't be in the core code and should be listening for authentication events.

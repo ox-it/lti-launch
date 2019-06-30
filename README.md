@@ -33,6 +33,22 @@ then if that completes successfully a release bundle can be pushed to the stagin
     
 We don't automatically close the staged artifacts so after checking that the files are ok you can login to the [repository](https://oss.sonatype.org/) and release it.
 
+### LTI Variables
+
+The project uses several variables from the LTI launch:
+
+ * `custom_canvas_user_login_id` - If set this will be used as the username on the created principal.
+ * `lis_person_sourcedid` - If the canvas specific username isn't found this will be used as the username on the created principal.
+ * `context_id` - If set this will be used to say the context for which the principal is valid.
+ * `resource_id` - If `context_id` is unset then this will be used to give the principal a context.
+ * `roles` - The roles are extracted from this value and set on the returned principal.
+ * `custom_canvas_user_isrootaccountadmin` - If `true` then the `ROLE_ROOT_ADMIN` role is added to the principal.
+ 
+This library also allows any project uses this to prevent LTI launches from different domains. Todo this it uses some more LTI variables to detect this:
+
+ * `custom_canvas_api_domain` - If set this value is used to determine where the LTI launch came from.
+ * `launch_presentation_return_url` - If `custom_canvas_api_domain` isn't set then this is used to determine where the LTI launch came from.
+
 ### Troubleshooting
 
 #### Invalid signature for signature method HMAC-SHA1
