@@ -16,7 +16,7 @@ public class CustomLtiUserAuthority implements LtiUserAuthority {
 
     @Override
     public String getAuthority() {
-        return role;
+        return ROLE_PREFIX + role;
     }
 
     @Override
