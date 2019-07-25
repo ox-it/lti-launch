@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.oauth.provider.nonce.NullNonceServices;
+import org.springframework.security.oauth.provider.nonce.OAuthNonceServices;
 
 @Configuration
 @EnableWebSecurity(debug = false)
@@ -15,6 +17,11 @@ public class TestWebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public ToolConsumerService toolConsumerService() {
         return new SingleToolConsumerService("test", "Test", "http://localhost", "secret");
+    }
+
+    @Bean
+    public OAuthNonceServices oAuthNonceServices() {
+        return new NullNonceServices();
     }
 
     @Override

@@ -76,7 +76,11 @@ public class LtiOAuthAuthenticationHandler implements OAuthAuthenticationHandler
         // We do this after checking authentication as we will present the return URL and don't
         // want people to be able to fake this.
         if (checkInstance) {
-            CanvasInstanceChecker checker = new CanvasInstanceChecker(consumer.getUrl(), null);
+            String consumerUrl = consumer.getUrl();
+            if (consumerUrl == null || consumerUrl.isEmpty()) {
+                throw new IllegalArgumentException("Not URL set on "+ key+ " but we are set to check instances.");
+            }
+            CanvasInstanceChecker checker = new CanvasInstanceChecker(consumerUrl, null);
             checker.validateInstance(request);
         }
         return authentication;

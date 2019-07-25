@@ -13,10 +13,14 @@ public class SimpleToolConsumer implements ToolConsumer {
     private final String name;
     private final String url;
 
+    /**
+     * @param instance The instance, this is a unique key for the tool consumer.
+     * @param name A nice display name for the instance.
+     * @param url The URL for the instance, can be null.
+     */
     public SimpleToolConsumer(String instance, String name, String url) {
         requireNonNull(instance, "The instance cannot be null.");
         requireNonNull(name, "The name cannot be null.");
-        requireNonNull(url, "The url cannot be null.");
         this.instance = instance;
         this.name = name;
         this.url = url;
