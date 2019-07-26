@@ -3,13 +3,13 @@ package edu.ksu.lti.launch.oauth;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth.provider.OAuthProcessingFilterEntryPoint;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLEncoder;
 
 /**
  * This is a copy of org.springframework.security.web.access.AccessDeniedHandlerImpl but adapted for a failed
@@ -30,6 +30,15 @@ public class LtiAuthenticationFilterEntryPoint extends OAuthProcessingFilterEntr
 
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         if (!response.isCommitted()) {
+            // If we've not validated the launch as being correct.
+            if (authException instanceof InvalidLtiLaunchException) {
+                InvalidLtiLaunchException ltiException = (InvalidLtiLaunchException) authException;
+                if (ltiException.hasReturnUrl()) {
+                    response.sendRedirect(ltiException.getReturnUrl() + "?lti_errormsg=" + URLEncoder.encode(ltiException.getMessage(), "UTF-8"));
+                    return;
+                }
+            }
+
             if (errorPage != null) {
                 // Put exception into request scope (perhaps of use to a view)
                 request.setAttribute(RequestDispatcher.ERROR_STATUS_CODE, HttpStatus.FORBIDDEN.value());
@@ -38,8 +47,7 @@ public class LtiAuthenticationFilterEntryPoint extends OAuthProcessingFilterEntr
                 // forward to error page.
                 RequestDispatcher dispatcher = request.getRequestDispatcher(errorPage);
                 dispatcher.forward(request, response);
-            }
-            else {
+            } else {
                 response.sendError(HttpStatus.FORBIDDEN.value(),
                     HttpStatus.FORBIDDEN.getReasonPhrase());
             }
@@ -51,9 +59,8 @@ public class LtiAuthenticationFilterEntryPoint extends OAuthProcessingFilterEntr
      * current context root.
      *
      * @param errorPage the dispatcher path to display
-     *
      * @throws IllegalArgumentException if the argument doesn't comply with the above
-     * limitations
+     *                                  limitations
      */
     public void setErrorPage(String errorPage) {
         if ((errorPage != null) && !errorPage.startsWith("/")) {
