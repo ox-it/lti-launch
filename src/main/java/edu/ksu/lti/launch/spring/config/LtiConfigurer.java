@@ -40,9 +40,10 @@ public class LtiConfigurer<B extends HttpSecurityBuilder<B>> extends SecurityCon
      * @param checkInstance If <code>true</code> the check the instance we launched from matches the one we are configured for.
      * @param errorPath Path to redirect errors to, if <code>null</code> then just return status codes.
      */
-    public LtiConfigurer(ToolConsumerService toolConsumerService, String path, boolean checkInstance, String errorPath) {
+    public LtiConfigurer(ToolConsumerService toolConsumerService, String path, boolean checkInstance, boolean validateLti, String errorPath) {
         this.oauthAuthenticationHandler = new LtiOAuthAuthenticationHandler(toolConsumerService);
         this.oauthAuthenticationHandler.setCheckInstance(checkInstance);
+        this.oauthAuthenticationHandler.setValidateLti(validateLti);
         this.oauthConsumerDetailsService = new LtiConsumerDetailsService(toolConsumerService);
         this.path = path;
         LtiAuthenticationFilterEntryPoint entryPoint = new LtiAuthenticationFilterEntryPoint();

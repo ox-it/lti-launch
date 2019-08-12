@@ -1,7 +1,6 @@
 package edu.ksu.lti.launch.test;
 
 
-import edu.ksu.lti.launch.spring.config.TestWebSecurityConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,20 +17,18 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.web.util.UriUtils;
 
 import java.net.URL;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+import static edu.ksu.lti.launch.test.LtiSigning.getRequiredLtiParameters;
+import static edu.ksu.lti.launch.test.LtiSigning.toQueryParams;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /*
@@ -79,14 +76,16 @@ public class SpringContextITest {
         details.setConsumerKey("test");
         URL url = new URL("http://server/launch");
         // There isn't a nice way to get the signed values back from the library.
-        String encodedQueryString = support.getOAuthQueryString(details, null, url, "POST", Collections.emptyMap());
+        String encodedQueryString = support.getOAuthQueryString(details, null, url, "POST", getRequiredLtiParameters());
 
         Map<String, List<String>> collect = toQueryParams(encodedQueryString);
 
         this.mockMvc.perform(post("http://server/launch")
             .params(new LinkedMultiValueMap<>(collect))
             .accept(MediaType.TEXT_HTML))
-            .andExpect(status().is3xxRedirection());
+            .andExpect(status().is3xxRedirection())
+            .andExpect(redirectedUrl("/"));
+
     }
 
     @Test
@@ -98,14 +97,15 @@ public class SpringContextITest {
         details.setConsumerKey("test");
         URL url = new URL("http://server/launch");
         // There isn't a nice way to get the signed values back from the library.
-        String encodedQueryString = support.getOAuthQueryString(details, null, url, "POST", Collections.emptyMap());
+        String encodedQueryString = support.getOAuthQueryString(details, null, url, "POST", getRequiredLtiParameters());
 
         Map<String, List<String>> collect = toQueryParams(encodedQueryString);
 
         this.mockMvc.perform(post("http://server/launch")
             .params(new LinkedMultiValueMap<>(collect))
             .accept(MediaType.TEXT_HTML))
-            .andExpect(status().is3xxRedirection());
+            .andExpect(status().is3xxRedirection())
+            .andExpect(redirectedUrl("/"));
 
         // This should be blocked because of the nonce blocking
         this.mockMvc.perform(post("http://server/launch")
@@ -124,22 +124,24 @@ public class SpringContextITest {
         URL url = new URL("http://server/launch");
         // There isn't a nice way to get the signed values back from the library.
         {
-            String encodedQueryString = support.getOAuthQueryString(details, null, url, "POST", Collections.emptyMap());
+            String encodedQueryString = support.getOAuthQueryString(details, null, url, "POST", getRequiredLtiParameters());
             Map<String, List<String>> collect = toQueryParams(encodedQueryString);
 
             this.mockMvc.perform(post("http://server/launch")
                 .params(new LinkedMultiValueMap<>(collect))
                 .accept(MediaType.TEXT_HTML))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
         }
         {
-            String encodedQueryString = support.getOAuthQueryString(details, null, url, "POST", Collections.emptyMap());
+            String encodedQueryString = support.getOAuthQueryString(details, null, url, "POST", getRequiredLtiParameters());
             Map<String, List<String>> collect = toQueryParams(encodedQueryString);
 
             this.mockMvc.perform(post("http://server/launch")
                 .params(new LinkedMultiValueMap<>(collect))
                 .accept(MediaType.TEXT_HTML))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
         }
     }
 
@@ -152,7 +154,7 @@ public class SpringContextITest {
         details.setConsumerKey("test");
         URL url = new URL("http://server/launch");
         // There isn't a nice way to get the signed values back from the library.
-        Map<String, String> additional = new HashMap<>();
+        Map<String, String> additional = new HashMap<>(getRequiredLtiParameters());
         additional.put("custom_canvas_api_domain", "http://server.beta/launch");
         String encodedQueryString = support.getOAuthQueryString(details, null, url, "POST", additional);
         Map<String, List<String>> collect = toQueryParams(encodedQueryString);
@@ -173,7 +175,7 @@ public class SpringContextITest {
         details.setConsumerKey("test");
         URL url = new URL("http://server/launch");
         // There isn't a nice way to get the signed values back from the library.
-        String encodedQueryString = support.getOAuthQueryString(details, null, url, "POST", Collections.emptyMap());
+        String encodedQueryString = support.getOAuthQueryString(details, null, url, "POST", getRequiredLtiParameters());
 
         Map<String, List<String>> collect = toQueryParams(encodedQueryString);
 
@@ -192,7 +194,7 @@ public class SpringContextITest {
         details.setConsumerKey("wrong");
         URL url = new URL("http://server/launch");
         // There isn't a nice way to get the signed values back from the library.
-        String encodedQueryString = support.getOAuthQueryString(details, null, url, "POST", Collections.emptyMap());
+        String encodedQueryString = support.getOAuthQueryString(details, null, url, "POST", getRequiredLtiParameters());
 
         Map<String, List<String>> collect = toQueryParams(encodedQueryString);
 
@@ -201,19 +203,4 @@ public class SpringContextITest {
             .accept(MediaType.TEXT_HTML))
             .andExpect(status().is4xxClientError());
     }
-
-    private Map<String, List<String>> toQueryParams(String encodedQueryString) {
-        MultiValueMap<String, String> queryParams = UriComponentsBuilder
-            .fromUriString("?" + encodedQueryString)
-            .build()
-            .getQueryParams();
-        return queryParams.entrySet()
-            .stream()
-            .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue()
-                .stream()
-                .map(s -> UriUtils.decode(s, "UTF-8"))
-                .collect(Collectors.toList()))
-            );
-    }
-
 }
