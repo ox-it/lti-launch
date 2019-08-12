@@ -3,6 +3,7 @@ package edu.ksu.lti.launch.security;
 import edu.ksu.lti.launch.exception.InvalidInstanceException;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Objects;
 
 /**
  * Checks which Canvas instance this application is running in.
@@ -22,6 +23,7 @@ public class CanvasInstanceChecker {
     private final String secondCanvasUrl;
 
     public CanvasInstanceChecker(String canvasUrl, String secondCanvasUrl) {
+        Objects.requireNonNull(canvasUrl, "canvasUrl cannot be null");
         this.canvasUrl = canvasUrl;
         this.secondCanvasUrl = secondCanvasUrl;
     }

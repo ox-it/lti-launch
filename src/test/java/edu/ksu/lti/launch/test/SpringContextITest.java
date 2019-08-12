@@ -1,7 +1,6 @@
 package edu.ksu.lti.launch.test;
 
 
-import edu.ksu.lti.launch.exception.InvalidInstanceException;
 import edu.ksu.lti.launch.spring.config.TestWebSecurityConfig;
 import org.junit.Before;
 import org.junit.Test;

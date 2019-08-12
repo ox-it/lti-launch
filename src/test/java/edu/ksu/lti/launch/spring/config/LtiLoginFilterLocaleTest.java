@@ -8,6 +8,9 @@ import java.util.Locale;
 
 import static org.junit.Assert.*;
 
+/**
+ * This tests the extracting of the Locale from the LTI launch.
+ */
 public class LtiLoginFilterLocaleTest {
 
     private LtiLoginFilter filter;
