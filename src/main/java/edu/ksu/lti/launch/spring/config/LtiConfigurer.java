@@ -38,6 +38,7 @@ public class LtiConfigurer<B extends HttpSecurityBuilder<B>> extends SecurityCon
      * @param toolConsumerService The service with details of the ToolConsumers.
      * @param path The path to attempt LTI Launches for. Often "/launch".
      * @param checkInstance If <code>true</code> the check the instance we launched from matches the one we are configured for.
+     * @param validateLti If <code>true</code> then validate that the LTI launch follows the LTI specification.
      * @param errorPath Path to redirect errors to, if <code>null</code> then just return status codes.
      */
     public LtiConfigurer(ToolConsumerService toolConsumerService, String path, boolean checkInstance, boolean validateLti, String errorPath) {
