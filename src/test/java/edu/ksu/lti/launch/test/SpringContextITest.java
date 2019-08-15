@@ -1,15 +1,19 @@
 package edu.ksu.lti.launch.test;
 
 
+import edu.ksu.lti.launch.model.InstitutionRole;
+import edu.ksu.lti.launch.oauth.StandardLtiUserAuthority;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth.common.signature.SharedConsumerSecretImpl;
 import org.springframework.security.oauth.consumer.BaseProtectedResourceDetails;
 import org.springframework.security.oauth.consumer.OAuthConsumerSupport;
 import org.springframework.security.oauth.consumer.client.CoreOAuthConsumerSupport;
+import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -20,9 +24,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static edu.ksu.lti.launch.test.LtiSigning.getRequiredLtiParameters;
 import static edu.ksu.lti.launch.test.LtiSigning.toQueryParams;
@@ -84,8 +86,36 @@ public class SpringContextITest {
             .params(new LinkedMultiValueMap<>(collect))
             .accept(MediaType.TEXT_HTML))
             .andExpect(status().is3xxRedirection())
-            .andExpect(redirectedUrl("/"));
+            .andExpect(redirectedUrl("/"))
+            .andExpect(SecurityMockMvcResultMatchers.authenticated().withRoles("LTI_USER"));
+    }
 
+    @Test
+    public void testRoleExtraction() throws Exception {
+        OAuthConsumerSupport support = new CoreOAuthConsumerSupport();
+        BaseProtectedResourceDetails details = new BaseProtectedResourceDetails();
+        details.setAcceptsAuthorizationHeader(false);
+        details.setSharedSecret(new SharedConsumerSecretImpl("secret"));
+        details.setConsumerKey("test");
+        URL url = new URL("http://server/launch");
+        // There isn't a nice way to get the signed values back from the library.
+        Map<String, String> additional = new HashMap<>(getRequiredLtiParameters());
+        additional.put("roles", "Instructor");
+        String encodedQueryString = support.getOAuthQueryString(details, null, url, "POST", additional);
+
+        Map<String, List<String>> collect = toQueryParams(encodedQueryString);
+
+        this.mockMvc.perform(post("http://server/launch")
+            .params(new LinkedMultiValueMap<>(collect))
+            .accept(MediaType.TEXT_HTML))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(redirectedUrl("/"))
+            .andExpect(SecurityMockMvcResultMatchers.authenticated()
+                .withAuthorities(Arrays.asList(
+                    new StandardLtiUserAuthority(InstitutionRole.Instructor),
+                    new SimpleGrantedAuthority("ROLE_LTI_USER")
+                ))
+            );
     }
 
     @Test

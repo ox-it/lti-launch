@@ -12,6 +12,7 @@ public class StandardLtiUserAuthority implements LtiUserAuthority {
     private final InstitutionRole role;
 
     public StandardLtiUserAuthority(InstitutionRole role) {
+        Objects.requireNonNull(role);
         this.role = role;
     }
 
@@ -23,6 +24,10 @@ public class StandardLtiUserAuthority implements LtiUserAuthority {
     @Override
     public boolean isCustom() {
         return false;
+    }
+
+    public InstitutionRole getRole() {
+        return role;
     }
 
     @Override

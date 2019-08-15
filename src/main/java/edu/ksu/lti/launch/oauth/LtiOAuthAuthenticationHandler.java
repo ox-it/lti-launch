@@ -26,10 +26,14 @@ public class LtiOAuthAuthenticationHandler implements OAuthAuthenticationHandler
 
     private boolean validateLti;
 
-    private LtiUserAuthorityFactory userAuthorityFactory = new LtiUserAuthorityFactory();
+    private LtiUserAuthorityFactory userAuthorityFactory = new DefaultLtiUserAuthorityFactory();
 
     public LtiOAuthAuthenticationHandler(ToolConsumerService toolConsumerService) {
         this.toolConsumerService = toolConsumerService;
+    }
+
+    public void setUserAuthorityFactory(LtiUserAuthorityFactory userAuthorityFactory) {
+        this.userAuthorityFactory = userAuthorityFactory;
     }
 
     public void setCheckInstance(boolean checkInstance) {

@@ -8,13 +8,13 @@ import static java.util.Collections.EMPTY_SET;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
-public class LtiUserAutorityFactoryTest {
+public class DefaultLtiUserAutorityFactoryTest {
 
-    private LtiUserAuthorityFactory factory;
+    private DefaultLtiUserAuthorityFactory factory;
 
     @Before
     public void setUp() {
-        factory = new LtiUserAuthorityFactory();
+        factory = new DefaultLtiUserAuthorityFactory();
     }
 
     @Test

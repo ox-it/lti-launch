@@ -3,6 +3,7 @@ package edu.ksu.lti.launch.spring.config;
 import edu.ksu.lti.launch.oauth.LtiAuthenticationFilterEntryPoint;
 import edu.ksu.lti.launch.oauth.LtiConsumerDetailsService;
 import edu.ksu.lti.launch.oauth.LtiOAuthAuthenticationHandler;
+import edu.ksu.lti.launch.oauth.LtiUserAuthorityFactory;
 import edu.ksu.lti.launch.service.LtiLoginService;
 import edu.ksu.lti.launch.service.ToolConsumerService;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
@@ -50,7 +51,10 @@ public class LtiConfigurer<B extends HttpSecurityBuilder<B>> extends SecurityCon
         LtiAuthenticationFilterEntryPoint entryPoint = new LtiAuthenticationFilterEntryPoint();
         entryPoint.setErrorPage(errorPath);
         authenticationEntryPoint = entryPoint;
+    }
 
+    public void setLtiUserAuthorityFactory(LtiUserAuthorityFactory ltiUserAuthorityFactory) {
+        this.oauthAuthenticationHandler.setUserAuthorityFactory(ltiUserAuthorityFactory);
     }
 
     @Override
