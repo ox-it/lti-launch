@@ -1,5 +1,7 @@
 package edu.ksu.lti.launch.test;
 
+import edu.ksu.lti.launch.service.LtiLoginService;
+import edu.ksu.lti.launch.service.SimpleLtiLoginService;
 import edu.ksu.lti.launch.service.SingleToolConsumerService;
 import edu.ksu.lti.launch.service.ToolConsumerService;
 import edu.ksu.lti.launch.spring.config.LtiConfigurer;
@@ -22,6 +24,11 @@ public class TestWebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
+    public LtiLoginService ltiLoginService() {
+        return new SimpleLtiLoginService();
+    }
+
+    @Bean
     public OAuthNonceServices oAuthNonceServices() {
         return new NullNonceServices();
     }
@@ -29,7 +36,7 @@ public class TestWebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-            .apply(new LtiConfigurer<>(toolConsumerService(), "/launch", true, true, null))
+            .apply(new LtiConfigurer().checkInstance())
             .and().authorizeRequests().anyRequest().hasRole("LTI_USER");
         // Disable csrf for LTI launches
         http.csrf().requireCsrfProtectionMatcher(new LtiLaunchCsrfMatcher("/launch"));

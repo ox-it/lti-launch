@@ -1,6 +1,11 @@
 package edu.ksu.lti.launch.test;
 
 
+import edu.ksu.lti.launch.oauth.CustomLtiUserAuthority;
+import edu.ksu.lti.launch.oauth.LtiUserAuthority;
+import edu.ksu.lti.launch.oauth.LtiUserAuthorityFactory;
+import edu.ksu.lti.launch.service.LtiLoginService;
+import edu.ksu.lti.launch.service.SimpleLtiLoginService;
 import edu.ksu.lti.launch.service.SingleToolConsumerService;
 import edu.ksu.lti.launch.service.ToolConsumerService;
 import edu.ksu.lti.launch.spring.config.LtiConfigurer;
@@ -15,12 +20,14 @@ import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth.common.signature.SharedConsumerSecretImpl;
 import org.springframework.security.oauth.consumer.BaseProtectedResourceDetails;
 import org.springframework.security.oauth.consumer.OAuthConsumerSupport;
 import org.springframework.security.oauth.consumer.client.CoreOAuthConsumerSupport;
 import org.springframework.security.oauth.provider.nonce.NullNonceServices;
 import org.springframework.security.oauth.provider.nonce.OAuthNonceServices;
+import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -30,21 +37,20 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.net.URL;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static edu.ksu.lti.launch.test.LtiSigning.getRequiredLtiParameters;
 import static edu.ksu.lti.launch.test.LtiSigning.toQueryParams;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /*
- * This checks that you can use the library without supplying a URL for the SingleToolConsumerService.
+ * This checks that you can supply your own role factory.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-public class NoUrlITest {
+public class CustomLtiUserAuthorityFactoryTest {
 
     @Configuration
     @EnableWebSecurity
@@ -53,7 +59,12 @@ public class NoUrlITest {
         @Bean
         public ToolConsumerService toolConsumerService() {
             // We don't have a URL for the service here.
-            return new SingleToolConsumerService("test", "Test", null, "secret");
+            return new SingleToolConsumerService("test", "Test", "http://example.com", "secret");
+        }
+
+        @Bean
+        public LtiLoginService ltiLoginService() {
+            return new SimpleLtiLoginService();
         }
 
         @Bean
@@ -63,9 +74,17 @@ public class NoUrlITest {
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
+            LtiConfigurer configurer = new LtiConfigurer();
+            // Override to ignore the passed value.
+            configurer.setLtiUserAuthorityFactory(new LtiUserAuthorityFactory() {
+                @Override
+                public Collection<LtiUserAuthority> getLtiUserAuthorities(String roles) {
+                    return Collections.singleton(new CustomLtiUserAuthority("TEST"));
+                }
+            });
             http
                 // We don't enable instance checking.
-                .apply(new LtiConfigurer<>(toolConsumerService(), "/launch", false, true, null))
+                .apply(configurer)
                 .and().authorizeRequests().anyRequest().hasRole("LTI_USER");
             // Disable csrf for LTI launches
             http.csrf().requireCsrfProtectionMatcher(new LtiLaunchCsrfMatcher("/launch"));
@@ -85,7 +104,7 @@ public class NoUrlITest {
     }
 
     @Test
-    public void testSignedLogin() throws Exception {
+    public void testRoleExtraction() throws Exception {
         OAuthConsumerSupport support = new CoreOAuthConsumerSupport();
         BaseProtectedResourceDetails details = new BaseProtectedResourceDetails();
         details.setAcceptsAuthorizationHeader(false);
@@ -93,14 +112,24 @@ public class NoUrlITest {
         details.setConsumerKey("test");
         URL url = new URL("http://server/launch");
         // There isn't a nice way to get the signed values back from the library.
-        String encodedQueryString = support.getOAuthQueryString(details, null, url, "POST", getRequiredLtiParameters());
+        Map<String, String> additional = new HashMap<>(getRequiredLtiParameters());
+        additional.put("roles", "Instructor");
+        String encodedQueryString = support.getOAuthQueryString(details, null, url, "POST", additional);
 
         Map<String, List<String>> collect = toQueryParams(encodedQueryString);
 
         this.mockMvc.perform(post("http://server/launch")
             .params(new LinkedMultiValueMap<>(collect))
             .accept(MediaType.TEXT_HTML))
-            .andExpect(status().is3xxRedirection());
+            .andExpect(status().is3xxRedirection())
+            .andExpect(redirectedUrl("/"))
+            .andExpect(SecurityMockMvcResultMatchers.authenticated()
+                .withAuthorities(Arrays.asList(
+                    // Check that we ignore the passed roles and return our custom granted authority.
+                    new CustomLtiUserAuthority("TEST"),
+                    new SimpleGrantedAuthority("ROLE_LTI_USER")
+                ))
+            );
     }
 
 }

@@ -36,7 +36,6 @@ import static org.springframework.util.StringUtils.parseLocale;
  */
 public class LtiLoginFilter implements Filter {
 
-
     private static final Log logger = LogFactory.getLog(LtiLoginFilter.class);
 
     private RequestMatcher requestMatcher;
@@ -64,7 +63,6 @@ public class LtiLoginFilter implements Filter {
             Object principal = context.getAuthentication().getPrincipal();
 
             if (principal instanceof LtiPrincipal) {
-                // TODO validate that we have the required fields
                 PropertyValues propertyValues = new LtiLaunchPropertyValues(request.getParameterMap());
                 LtiLaunchData launchData = new LtiLaunchData();
                 DataBinder dataBinder = new DataBinder(launchData);

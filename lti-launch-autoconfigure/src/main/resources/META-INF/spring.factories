@@ -1,0 +1,4 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  edu.ksu.lti.launch.autoconfigure.LtiLaunchAutoConfigure
+org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer=\
+  edu.ksu.lti.launch.spring.config.LtiConfigurer
