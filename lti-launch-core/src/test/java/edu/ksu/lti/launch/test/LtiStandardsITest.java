@@ -1,6 +1,8 @@
 package edu.ksu.lti.launch.test;
 
 
+import edu.ksu.lti.launch.service.LtiLoginService;
+import edu.ksu.lti.launch.service.SimpleLtiLoginService;
 import edu.ksu.lti.launch.service.SingleToolConsumerService;
 import edu.ksu.lti.launch.service.ToolConsumerService;
 import edu.ksu.lti.launch.spring.config.LtiConfigurer;
@@ -37,6 +39,8 @@ import java.util.Map;
 import static edu.ksu.lti.launch.test.LtiSigning.getRequiredLtiParameters;
 import static edu.ksu.lti.launch.test.LtiSigning.toQueryParams;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /*
@@ -108,7 +112,7 @@ public class LtiStandardsITest {
         this.mockMvc.perform(post("http://server/launch")
             .params(new LinkedMultiValueMap<>(collect))
             .accept(MediaType.TEXT_HTML))
-            .andExpect(result -> result.getResponse().getRedirectedUrl().startsWith("http://tool.consumer/"));
+            .andExpect(redirectedUrlPattern("http://tool.consumer/**"));
     }
 
     @Test
@@ -122,7 +126,7 @@ public class LtiStandardsITest {
         this.mockMvc.perform(post("http://server/launch")
             .params(new LinkedMultiValueMap<>(collect))
             .accept(MediaType.TEXT_HTML))
-            .andExpect(result -> result.getResponse().getRedirectedUrl().startsWith("http://tool.consumer/"));
+            .andExpect(redirectedUrlPattern("http://tool.consumer/**"));
     }
 
     @Test
@@ -137,7 +141,7 @@ public class LtiStandardsITest {
         this.mockMvc.perform(post("http://server/launch")
             .params(new LinkedMultiValueMap<>(collect))
             .accept(MediaType.TEXT_HTML))
-            .andExpect(result -> result.getResponse().getRedirectedUrl().startsWith("http://tool.consumer/"));
+            .andExpect(redirectedUrlPattern("http://tool.consumer/**"));
     }
 
     @Test
@@ -151,7 +155,7 @@ public class LtiStandardsITest {
         this.mockMvc.perform(post("http://server/launch")
             .params(new LinkedMultiValueMap<>(collect))
             .accept(MediaType.TEXT_HTML))
-            .andExpect(result -> result.getResponse().getRedirectedUrl().startsWith("http://tool.consumer/"));
+            .andExpect(redirectedUrlPattern("http://tool.consumer/**"));
     }
 
     @Test
@@ -165,7 +169,7 @@ public class LtiStandardsITest {
         this.mockMvc.perform(post("http://server/launch")
             .params(new LinkedMultiValueMap<>(collect))
             .accept(MediaType.TEXT_HTML))
-            .andExpect(result -> result.getResponse().getRedirectedUrl().startsWith("http://tool.consumer/"));
+            .andExpect(redirectedUrlPattern("http://tool.consumer/**"));
     }
 
     @Configuration
@@ -178,6 +182,12 @@ public class LtiStandardsITest {
             return new SingleToolConsumerService("test", "Test", null, "secret");
         }
 
+
+        @Bean
+        public LtiLoginService ltiLoginService() {
+            return new SimpleLtiLoginService();
+        }
+
         @Bean
         public OAuthNonceServices oAuthNonceServices() {
             return new NullNonceServices();
@@ -187,7 +197,7 @@ public class LtiStandardsITest {
         protected void configure(HttpSecurity http) throws Exception {
             http
                 // We don't enable instance checking.
-                .apply(new LtiConfigurer<>(toolConsumerService(), "/launch", false, true, null))
+                .apply(new LtiConfigurer())
                 .and().authorizeRequests().anyRequest().hasRole("LTI_USER");
             // Disable csrf for LTI launches
             http.csrf().requireCsrfProtectionMatcher(new LtiLaunchCsrfMatcher("/launch"));
