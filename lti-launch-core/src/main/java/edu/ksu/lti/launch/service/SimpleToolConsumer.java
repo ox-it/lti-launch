@@ -1,5 +1,6 @@
 package edu.ksu.lti.launch.service;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
@@ -7,7 +8,9 @@ import static java.util.Objects.requireNonNull;
 /**
  * A simple implementation of the ToolConsumer.
  */
-public class SimpleToolConsumer implements ToolConsumer {
+public class SimpleToolConsumer implements ToolConsumer, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final String instance;
     private final String name;

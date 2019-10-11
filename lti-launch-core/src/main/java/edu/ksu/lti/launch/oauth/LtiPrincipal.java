@@ -2,6 +2,7 @@ package edu.ksu.lti.launch.oauth;
 
 import edu.ksu.lti.launch.service.ToolConsumer;
 
+import java.io.Serializable;
 import java.security.Principal;
 
 /**
@@ -9,7 +10,9 @@ import java.security.Principal;
  * While we could put all the data returned in the LTI launch in here it would make the principal rather heavy. Instead
  * we just give it enough. In the future we may want to encode this as a JWT.
  */
-public class LtiPrincipal implements Principal {
+public class LtiPrincipal implements Principal, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final ToolConsumer consumer;
     private final String user;
