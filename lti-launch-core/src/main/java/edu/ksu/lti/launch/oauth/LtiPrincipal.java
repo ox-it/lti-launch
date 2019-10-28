@@ -3,14 +3,13 @@ package edu.ksu.lti.launch.oauth;
 import edu.ksu.lti.launch.service.ToolConsumer;
 
 import java.io.Serializable;
-import java.security.Principal;
 
 /**
  * Holds the LTI principal. This is designed to support multitenancy.
  * While we could put all the data returned in the LTI launch in here it would make the principal rather heavy. Instead
  * we just give it enough. In the future we may want to encode this as a JWT.
  */
-public class LtiPrincipal implements Principal, Serializable {
+public class LtiPrincipal implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -36,7 +35,6 @@ public class LtiPrincipal implements Principal, Serializable {
         this.context = context;
     }
 
-    @Override
     public String getName() {
         return user;
     }
