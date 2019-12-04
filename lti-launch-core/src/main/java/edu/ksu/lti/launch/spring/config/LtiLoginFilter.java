@@ -81,7 +81,7 @@ public class LtiLoginFilter implements Filter {
                 ltiSession.setLocale(locale);
                 ltiSession.setLtiLaunchData(launchData);
                 ltiLoginService.setLtiSession((LtiPrincipal) principal, ltiSession);
-                String view = ltiLoginService.getInitialView((LtiPrincipal) principal);
+                String view = ltiLoginService.getInitialView(request, (LtiPrincipal) principal);
 
                 // Set the view afterwards as getting the initial view may need the LtiSession
                 ltiSession.setInitialViewPath(view);
