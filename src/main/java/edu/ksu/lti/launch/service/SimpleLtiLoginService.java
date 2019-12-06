@@ -16,7 +16,9 @@ public class SimpleLtiLoginService implements LtiLoginService {
 
     @Override
     public String getInitialView(LtiPrincipal principal) {
-        return "/";
+        ServletRequestAttributes sra = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequest req = sra.getRequest();
+        return req.getContextPath()+ "/";
     }
 
     @Override
