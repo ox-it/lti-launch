@@ -6,6 +6,8 @@ import edu.ksu.lti.launch.model.LtiSession;
 import edu.ksu.lti.launch.oauth.LtiPrincipal;
 import org.springframework.context.ApplicationListener;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * Users of this library should implement this interface if they want custom behaviour.
  * @see SimpleLtiLoginService
@@ -17,7 +19,7 @@ public interface LtiLoginService {
      * @param principal The authenticated principal.
      * @return The URL to redirect to.
      */
-    String getInitialView(LtiPrincipal principal);
+    String getInitialView(HttpServletRequest request, LtiPrincipal principal);
 
     LtiSession getLtiSession() throws NoLtiSessionException;
 

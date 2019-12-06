@@ -15,8 +15,8 @@ import javax.servlet.http.HttpSession;
 public class SimpleLtiLoginService implements LtiLoginService {
 
     @Override
-    public String getInitialView(LtiPrincipal principal) {
-        return "/";
+    public String getInitialView(HttpServletRequest httpServletRequest, LtiPrincipal principal) {
+        return httpServletRequest.getContextPath()+ "/";
     }
 
     @Override
