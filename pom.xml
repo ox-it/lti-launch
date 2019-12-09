@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>uk.ac.ox.it.lti</groupId>
+    <groupId>uk.ac.ox.ctl.lti</groupId>
     <artifactId>lti-launch</artifactId>
     <version>2.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -21,7 +21,7 @@
 
     <name>LTI Launch</name>
     <description>Java framework for authenticating LTI launch requests from the Canvas LMS</description>
-    <url>https://github.com/ox-it/lti-launch</url>
+    <url>https://github.com/oxctl/lti-launch</url>
 
     <licenses>
         <license>
@@ -32,22 +32,22 @@
     </licenses>
 
     <organization>
-        <name>IT Services, University of Oxford</name>
-        <url>http://www.it.ox.ac.uk/</url>
+        <name>Centre for Teaching and Learning, University of Oxford</name>
+        <url>https://www.ctl.ox.ac.uk/</url>
     </organization>
 
     <developers>
         <developer>
             <name>Matthew Buckett</name>
-            <email>matthew.buckett@it.ox.ac.uk</email>
-            <organization>IT Services, University of Oxford</organization>
+            <email>matthew.buckett@ctl.ox.ac.uk</email>
+            <organization>Centre for Teaching and Learning, University of Oxford</organization>
         </developer>
     </developers>
 
     <scm>
-        <connection>scm:git:ssh://git@github.com/ox-it/lti-launch.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/ox-it/lti-launch.git</developerConnection>
-        <url>https://github.com/ox-it/lti-launch</url>
+        <connection>scm:git:ssh://git@github.com/oxctl/lti-launch.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/oxctl/lti-launch.git</developerConnection>
+        <url>https://github.com/oxctl/lti-launch</url>
         <tag>HEAD</tag>
     </scm>
 
