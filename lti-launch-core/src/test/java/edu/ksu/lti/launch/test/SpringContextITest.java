@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /*
- * This test simply tests that the spring context is able to be setup in an appropiate way.
+ * This test simply tests that the spring context is able to be setup in an appropriate way.
  * It does this just by using a spring context similar to one that client code will need
  * to set up.
  */
