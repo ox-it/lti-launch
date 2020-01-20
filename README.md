@@ -9,7 +9,7 @@ LTI Launch is a project designed to assist in the development of Java based LTI 
 ### Technologies Used
 - Java 8
 - Maven (Compatible with 3.5.2, requires 3.1+)
-- Spring 5.1.4
+- Spring 5.1.13
 - Spring Security OAuth
 
 ### Set Up

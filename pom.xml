@@ -14,9 +14,7 @@
     </modules>
 
     <properties>
-        <spring.version>5.1.4.RELEASE</spring.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring-security-oauth.version>2.3.6.RELEASE</spring-security-oauth.version>
     </properties>
 
     <name>LTI Launch</name>
@@ -183,7 +181,7 @@
                 <!-- We need to lock down all the spring JARs so that the oauth1 support doesn't pull them back -->
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-framework-bom</artifactId>
-                <version>${spring.version}</version>
+                <version>5.1.13.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -191,12 +189,12 @@
             <dependency>
                 <groupId>org.springframework.security.oauth</groupId>
                 <artifactId>spring-security-oauth</artifactId>
-                <version>${spring-security-oauth.version}</version>
+                <version>2.4.0.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-test</artifactId>
-                <version>${spring.version}</version>
+                <version>5.1.7.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>javax.servlet</groupId>
