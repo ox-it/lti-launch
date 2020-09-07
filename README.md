@@ -57,6 +57,10 @@ If you are having problems with OAuth signatures not matching you should enable 
 
 A common problems is that the request is made as HTTPS to a proxy infront of the application and is then passed through as HTTP and this causes a signature mismatch because the the request URL that is checked doesn't matche the request URL that the signature was generated against.
 
+#### Debugging LTI signatures
+
+A helpful online tool to check the LTI signature is: https://lti.tools/oauth/ This allows you to enter the parameters you are going to send and check that the signature it generates is the same as you are expecting.
+
 ### License
 This software is licensed under the LGPL v3 license. Please see the [License.txt file](License.txt) in this repository for license details.
 
