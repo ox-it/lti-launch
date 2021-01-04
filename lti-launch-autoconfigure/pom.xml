@@ -16,7 +16,7 @@
     <description>This provides auto configuration of lti-launch for spring boot.</description>
 
     <properties>
-        <spring.boot.version>2.1.6.RELEASE</spring.boot.version>
+        <spring.boot.version>2.2.12.RELEASE</spring.boot.version>
     </properties>
 
     <dependencies>
